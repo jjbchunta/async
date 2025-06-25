@@ -1,12 +1,15 @@
 {
-    "name": "jjbchunta/php-async",
+    "name": "jjbchunta/async",
     "description": "Asynchronous code for PHP.",
     "type": "library",
     "license": "mit",
     "autoload": {
         "psr-4": {
-            "Jjbchunta\\PhpAsync\\": "src/"
-        }
+            "jjbchunta\\Async\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "authors": [
         {
