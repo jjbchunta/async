@@ -3,8 +3,6 @@
 namespace Jjbchunta\Async;
 
 use Exception;
-use Jjbchunta\Async\Handlers\Async_Curl;
-use Jjbchunta\Async\Handlers\AsyncInterface;
 
 /**
  * Pass a process that you wish to be handled asynchronously.
@@ -16,8 +14,8 @@ class Async {
     protected $process_type;
     protected $process_handler;
 
-    final private static $process_handlers = [
-        'url' => 'Async_Curl'
+    private static $process_handlers = [
+        'url' => '\\Jjbchunta\\Async\\Handlers\\Async_Curl'
     ];
 
     /**
@@ -44,7 +42,7 @@ class Async {
      * will be thrown.
      * @return string A string slug identifying the type of process.
      */
-    final public static function determine_process_type( $process ) {
+    public static function determine_process_type( $process ) {
         $chosen_process_type = null;
 
         // Loop through our handlers, attempting to determine if our process
@@ -69,7 +67,7 @@ class Async {
      * @throws \Exception If the requested process type is not supported, or the handler
      * class associated with the process type is invalid, an exception will be thrown.
      */
-    final public static function retrieve_process_handler_class( $type ) {
+    public static function retrieve_process_handler_class( $type ) {
         if ( !isset( self::$process_handlers[ $type ] ) ) {
             throw new Exception( "The provided process handler type is not supported." );
         }
