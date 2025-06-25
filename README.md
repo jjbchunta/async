@@ -13,7 +13,7 @@ composer require jjbchunta/async
 ### URL Requests
 
 ``` php
-use jjbchunta\Async\Async;
+use Jjbchunta\Async\Async;
 
 $promise = new Async( "https://www.google.com" );
 
