@@ -1,0 +1,18 @@
+{
+    "name": "jjbchunta/php-async",
+    "description": "Asynchronous code for PHP.",
+    "type": "library",
+    "license": "mit",
+    "autoload": {
+        "psr-4": {
+            "Jjbchunta\\PhpAsync\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Joseph Chunta",
+            "email": "jjbchunta@gmail.com"
+        }
+    ],
+    "require": {}
+}
