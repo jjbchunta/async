@@ -2,6 +2,7 @@
 
 namespace Jjbchunta\Async\Handlers;
 
+use Exception;
 use Jjbchunta\Async\Handlers\Async_Script;
 
 /**
@@ -35,6 +36,10 @@ class Async_Curl extends Async_Script {
      * @return mixed The sanitized stream in the desired data type.
      */
     protected function sanitize_output( $output ) {
-        return $output;
+        $output_array = deserialize_curl_response_from_string( $output );
+        if ( $output_array === null ) {
+            throw new Exception( "Unable to interpret HTTP response." );
+        }
+        return $output_array;
     }
 }

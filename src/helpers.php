@@ -12,7 +12,7 @@ if ( !function_exists( 'await' ) ) {
     }
 }
 
-if ( !function_exists( 'parse_and_execute_curl_string' ) ) {
+if ( !function_exists( 'parse_and_execute_curl_string_synchronously' ) ) {
     /**
      * Parses a cURL command string and executes it using PHP's cURL extension.
      * 
@@ -21,7 +21,7 @@ if ( !function_exists( 'parse_and_execute_curl_string' ) ) {
      * @param string $command The cURL command string.
      * @return array An array containing the response body, HTTP code, and any errors.
      */
-    function parse_and_execute_curl_string( $command ) {
+    function parse_and_execute_curl_string_synchronously( $command ) {
         $args = str_getcsv($command, ' ', '"');
 
         $ch = curl_init();
@@ -31,6 +31,9 @@ if ( !function_exists( 'parse_and_execute_curl_string' ) ) {
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
         curl_setopt( $ch, CURLOPT_HEADER, false );
         curl_setopt( $ch, CURLOPT_ENCODING, '' );
+
+        // Uncomment if you're experiencing local issuer certificate errors
+        // curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
 
         // Map arguments to the associated setopt value
         for ( $i = 0; $i < count( $args ); $i++ ) {
@@ -135,5 +138,45 @@ if ( !function_exists( 'parse_and_execute_curl_string' ) ) {
             'http_code' => $http_code,
             'error' => $error,
         ];
+    }
+}
+
+if ( !function_exists( 'serialize_curl_response_to_string' ) ) {
+    /**
+     * Takes any PHP array, serializes it to a JSON string, and then
+     * compresses it using ZLIB compression.
+     *
+     * @param array $data The input array to compress.
+     * @param int $level The compression level (0-9). 9 is the highest.
+     * @return string The compressed binary string.
+     */
+    function serialize_curl_response_to_string( $data, $level = 9 ) {
+        $jsonString = json_encode($data);
+        $compressedData = gzcompress($jsonString, $level);
+        return $compressedData;
+    }
+}
+
+if ( !function_exists( 'deserialize_curl_response_from_string' ) ) {
+    /**
+     * Takes a compressed binary string, un-compresses it, and decodes the
+     * resulting JSON string back into a PHP array.
+     *
+     * @param string $compressedData The compressed binary string from compressArrayToString().
+     * @return array|null The original array on success, or null if decompression or decoding
+     * fails.
+     */
+    function deserialize_curl_response_from_string( $compressedData ) {
+        $uncompressedData = @gzuncompress($compressedData);
+        if ($uncompressedData === false) {
+            return null;
+        }
+
+        $array = json_decode($uncompressedData, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return null;
+        }
+
+        return $array;
     }
 }

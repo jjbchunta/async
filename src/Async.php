@@ -30,8 +30,8 @@ class Async implements AsyncInterface {
      * @var array
      */
     private static $process_handlers = [
-        'script' => '\\Jjbchunta\\Async\\Handlers\\Async_Script',
-        'url' => '\\Jjbchunta\\Async\\Handlers\\Async_Curl'
+        'url' => '\\Jjbchunta\\Async\\Handlers\\Async_Curl',
+        'script' => '\\Jjbchunta\\Async\\Handlers\\Async_Script'
     ];
 
     /**
