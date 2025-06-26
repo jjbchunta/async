@@ -24,4 +24,14 @@ echo "Example process completed." . PHP_EOL;
 
 echo "Waiting process finish..." . PHP_EOL;
 $result = await( $promise );
+print_r( $result );
+echo "Process await finished!" . PHP_EOL;
+
+echo "Attempting to run process again..." . PHP_EOL;
+$promise->rerun();
+echo "Re-run successfully invocated!" . PHP_EOL;
+
+echo "Waiting process finish..." . PHP_EOL;
+$result = await( $promise );
+print_r( $result );
 echo "Process await finished!" . PHP_EOL;

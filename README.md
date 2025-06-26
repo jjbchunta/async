@@ -1,6 +1,6 @@
 # Asynchronous code for PHP.
 
-A wrapper for various built-in non-blocking operations native to PHP.
+A wrapper for various built-in non-blocking operations native to PHP, a language notorious for being single-threaded and very much blocking.
 
 This package can be installed via composer:
 

@@ -123,4 +123,8 @@ class Async implements AsyncInterface {
     public function result() {
         return $this->process_handler->result();
     }
+
+    public function rerun() {
+        $this->process_handler->rerun();
+    }
 }

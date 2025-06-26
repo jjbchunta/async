@@ -50,6 +50,13 @@ class Async_Script implements AsyncInterface {
     public function __construct( $process ) {
         $this->command = "php $process";
 
+        // `rerun` handles invocation, so just use that
+        $this->rerun();
+    }
+
+    public function rerun() {
+        if ( $this->is_running() ) return;
+
         // We don't care about the pipes, so we define them but won't use them.
         $descriptor_spec = [
             0 => ["pipe", "r"], // in
@@ -57,18 +64,22 @@ class Async_Script implements AsyncInterface {
             2 => ["pipe", "w"] // err
         ];
 
+        // Ensure no conflicts
+        $this->result = null;
+        $this->exit_code = null;
         $this->pipes = [];
+
+        // Attempt to open a seperate PHP process
         $this->process = proc_open(
             $this->command,
             $descriptor_spec,
             $this->pipes
         );
-
-        // Ensure the initialization was successful
         if ( !is_resource( $this->process ) ) {
             throw new Exception( "The process could not be initialized." );
         }
 
+        // Ensure this happens in the background and we're not blocked by this
         stream_set_blocking( $this->pipes[1], false );
         stream_set_blocking( $this->pipes[2], false );
     }

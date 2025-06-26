@@ -46,4 +46,21 @@ interface AsyncInterface {
      * This value is also returned after a `wait` call.
      */
     public function result();
+
+    /**
+     * Take the provided process, and run it one more time.
+     * 
+     * This will only become available after an initial invocation, and if the
+     * current process is not running.
+     * 
+     * It should also be noted that any saved values from the result of the previous
+     * invocation will be flushed upon calling this value, but retrieval of the new
+     * value on completion will still be available through the same means of using
+     * `wait` and `result` calls.
+     * 
+     * @throws \Exception If the process is unable to be properly re-initialized, an
+     * exception will be thrown.
+     * @return void
+     */
+    public function rerun();
 }
