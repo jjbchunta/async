@@ -13,9 +13,22 @@ use Jjbchunta\Async\Handlers\AsyncInterface;
  * - **URLs** - Preforming a request to a public web address. ex: `https://www.google.com`
  */
 class Async implements AsyncInterface {
+    /**
+     * A string slug identifying the type of process.
+     * @var string
+     */
     protected $process_type;
+    /**
+     * An instance of the handler class for the respective process type.
+     * @var object
+     */
     protected $process_handler;
 
+    /**
+     * The association between process types and handler classes, that being the key
+     * to value pair relationship.
+     * @var array
+     */
     private static $process_handlers = [
         'script' => '\\Jjbchunta\\Async\\Handlers\\Async_Script',
         'url' => '\\Jjbchunta\\Async\\Handlers\\Async_Curl'

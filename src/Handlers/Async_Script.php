@@ -5,12 +5,40 @@ namespace Jjbchunta\Async\Handlers;
 use Exception;
 use Jjbchunta\Async\Handlers\AsyncInterface;
 
+/**
+ * The asynchronous handler responsible for initializing a child PHP process
+ * running a specific file.
+ */
 class Async_Script implements AsyncInterface {
+    /**
+     * The STD in, out, and error pipes tied to the child process.
+     * @var array
+     */
     protected $pipes;
+    /**
+     * The handle tied to the child process.
+     * @var resource
+     */
     protected $process;
+    /**
+     * The full output stream of a successful asynchronous invocation.
+     * @var string
+     */
     protected $output;
+    /**
+     * The original command that began the child process.
+     * @var string
+     */
     protected $command;
+    /**
+     * The output returned not by the process, but by the action of closing the operation.
+     * @var int|null
+     */
     protected $exit_code = null;
+
+    /*
+        Interface Required
+    */
 
     public static function is_process_of_type( $process ) {
         return true;
@@ -86,6 +114,24 @@ class Async_Script implements AsyncInterface {
         return true;
     }
 
+    public function result() {
+        return $this->output;
+    }
+
+    public function __destruct() {
+        $this->clean_up();
+    }
+
+    /*
+        Additional Functions
+    */
+
+    /**
+     * Assuming that there is still an active connection to the asynchronous
+     * operation, ensure all ties and pipes are properly and safely closed.
+     * 
+     * @return void
+     */
     protected function clean_up() {
         if ( is_resource( $this->process ) ) {
             $stdin_pipe = $this->pipes[0];
@@ -99,13 +145,5 @@ class Async_Script implements AsyncInterface {
             $this->exitCode = proc_close( $this->process );
             $this->process = null;
         }
-    }
-
-    public function result() {
-        return $this->output;
-    }
-
-    public function __destruct() {
-        $this->clean_up();
     }
 }

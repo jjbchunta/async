@@ -2,6 +2,9 @@
 
 namespace Jjbchunta\Async\Handlers;
 
+/**
+ * The outline of expected public functions that an asynchronous handler should have.
+ */
 interface AsyncInterface {
     /**
      * Attempt to determine if the included process would be supported by this handler.
