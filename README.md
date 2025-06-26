@@ -22,8 +22,8 @@ $output = await( $promise );
 
 When it comes to this `Async` class, a _"process"_ that you pass as the main argument can be one of a few things:
 
+- **URLs** - Preforming a web request using CURL. ex: `"https://api.domain.com -X POST ..."`
 - **PHP Files** - Execute a PHP script. ex: `".../path/to/file.php"`
-- **URLs** - Preforming a request to a public web address. ex: `"https://www.google.com"`
 
 > [!NOTE]
 > The type of process passed into the `Async` class will be determined on the fly and will be handled accordingly.

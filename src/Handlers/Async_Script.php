@@ -95,6 +95,15 @@ class Async_Script implements AsyncInterface {
         }
 
         $this->clean_up();
+
+        // Allow any child classes to alter the value as desired
+        if ( method_exists( $this, 'sanitize_output' ) ) {
+            $output = $this->sanitize_output( $output );
+            if ( is_subclass_of( $output, Exception::class ) ) {
+                // There was some error that occured during sanitization
+            }
+        }
+
         $this->output = $output;
         return $output;
     }

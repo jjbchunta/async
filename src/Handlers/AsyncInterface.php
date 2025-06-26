@@ -32,12 +32,6 @@ interface AsyncInterface {
     public function wait();
 
     /**
-     * @return mixed Retrieve the output returned not by the process, but by the action of
-     * closing the operation.
-     */
-    public function get_exit_code();
-
-    /**
      * Forcefully terminate the current asynchronous operation if it's still running.
      * 
      * @param int $timeout Time in seconds to wait for graceful shutdown.

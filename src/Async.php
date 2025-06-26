@@ -9,8 +9,8 @@ use Jjbchunta\Async\Handlers\AsyncInterface;
  * Pass a process that you wish to be handled asynchronously.
  * 
  * The current process types that are currently supported are:
+ * - **URLs** - Preforming a web request using CURL. ex: `"https://api.domain.com -X POST ..."`
  * - **PHP Files** - Execute a PHP script. ex: `.../path/to/file.php`
- * - **URLs** - Preforming a request to a public web address. ex: `https://www.google.com`
  */
 class Async implements AsyncInterface {
     /**
@@ -108,10 +108,6 @@ class Async implements AsyncInterface {
 
     public function stop() {
         return $this->process_handler->stop();
-    }
-
-    public function get_exit_code() {
-        return $this->process_handler->get_exit_code();
     }
 
     public function result() {

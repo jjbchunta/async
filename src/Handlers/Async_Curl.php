@@ -24,4 +24,17 @@ class Async_Curl extends Async_Script {
         $command = "$executable $process";
         parent::__construct( $command );
     }
+
+    /**
+     * Take the full STDOUT from a successfully closed stream, and sanitize
+     * it into some form of more usable data type.
+     * 
+     * @param string $output The STDOUT stream.
+     * @throws \Exception If the stream cannot be properly sanitized, an
+     * exception will be thrown.
+     * @return mixed The sanitized stream in the desired data type.
+     */
+    protected function sanitize_output( $output ) {
+        return $output;
+    }
 }
