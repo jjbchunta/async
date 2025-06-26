@@ -94,7 +94,7 @@ class Async implements AsyncInterface {
     }
 
     public function stop() {
-        $this->process_handler->stop();
+        return $this->process_handler->stop();
     }
 
     public function get_exit_code() {

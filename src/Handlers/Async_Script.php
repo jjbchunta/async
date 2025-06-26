@@ -66,7 +66,7 @@ class Async_Script implements AsyncInterface {
             // There was some error that occured during execution
         }
 
-        $this->stop();
+        $this->clean_up();
         $this->output = $output;
         return $output;
     }
@@ -76,6 +76,17 @@ class Async_Script implements AsyncInterface {
     }
 
     public function stop() {
+        if ( !$this->is_running() ) {
+            return true; // Already stopped
+        }
+
+        proc_terminate( $this->process, 9 ); // 15 for more graceful nudge
+
+        $this->clean_up();
+        return true;
+    }
+
+    protected function clean_up() {
         if ( is_resource( $this->process ) ) {
             $stdin_pipe = $this->pipes[0];
             $stdout_pipe = $this->pipes[1];
@@ -95,6 +106,6 @@ class Async_Script implements AsyncInterface {
     }
 
     public function __destruct() {
-        $this->stop();
+        $this->clean_up();
     }
 }

@@ -35,9 +35,11 @@ interface AsyncInterface {
     public function get_exit_code();
 
     /**
-     * Completely stop the current asynchronous operation if it's still running.
+     * Forcefully terminate the current asynchronous operation if it's still running.
      * 
-     * @return void
+     * @param int $timeout Time in seconds to wait for graceful shutdown.
+     * @param bool $force Forcefully kill with SIGKILL if timeout is reached.
+     * @return bool True on success, false on failure.
      */
     public function stop();
 
