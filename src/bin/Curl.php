@@ -4,7 +4,7 @@
 ob_start();
 
 // Extract the process from a command call
-$curl_cmd = count( $_SERVER[ 'argv' ] ) >= 2 ?
+$curl_cmd = intval( $_SERVER[ 'argc' ] ) >= 2 ?
             implode( ' ', array_slice( $_SERVER[ 'argv' ], 1 ) ) :
             null;
 if ( empty( $curl_cmd ) ) {

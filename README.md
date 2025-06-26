@@ -1,5 +1,7 @@
 # Asynchronous code for PHP.
 
+![Version](https://img.shields.io/badge/Version-1.0.1-brightgreen)
+
 A wrapper for various built-in non-blocking operations native to PHP, a language notorious for being single-threaded and very much blocking.
 
 This package can be installed via composer:

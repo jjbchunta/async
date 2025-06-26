@@ -65,7 +65,7 @@ class Async_Script implements AsyncInterface {
         ];
 
         // Ensure no conflicts
-        $this->result = null;
+        $this->output = null;
         $this->exit_code = null;
         $this->pipes = [];
 
@@ -165,7 +165,7 @@ class Async_Script implements AsyncInterface {
             fclose( $stdout_pipe );
             fclose( $stderr_pipe );
 
-            $this->exitCode = proc_close( $this->process );
+            $this->exit_code = proc_close( $this->process );
             $this->process = null;
         }
     }

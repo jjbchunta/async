@@ -1,7 +1,7 @@
 <?php
 
 // Extract the process from a command call
-$process = count( $_SERVER[ 'argv' ] ) >= 2 ?
+$process = intval( $_SERVER[ 'argc' ] ) >= 2 ?
             array_slice( $_SERVER[ 'argv' ], 1, 1 )[0] :
             null;
 if ( empty( $process ) ) {
