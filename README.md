@@ -17,7 +17,7 @@ $promise = new Async( $your_process );
 
 // ...other stuff...
 
-await( $promise );
+$output = await( $promise );
 ```
 
 When it comes to this `Async` class, a _"process"_ that you pass as the main argument can be one of a few things:

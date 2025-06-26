@@ -25,7 +25,11 @@ class Async_Curl implements AsyncInterface {
 
     }
 
-    public function close() {
+    public function stop() {
         
+    }
+
+    public function result() {
+
     }
 }

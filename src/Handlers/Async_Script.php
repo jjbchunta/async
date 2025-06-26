@@ -66,7 +66,7 @@ class Async_Script implements AsyncInterface {
             // There was some error that occured during execution
         }
 
-        $this->close();
+        $this->stop();
         $this->output = $output;
         return $output;
     }
@@ -75,7 +75,7 @@ class Async_Script implements AsyncInterface {
         return $this->exit_code;
     }
 
-    public function close() {
+    public function stop() {
         if ( is_resource( $this->process ) ) {
             $stdin_pipe = $this->pipes[0];
             $stdout_pipe = $this->pipes[1];
@@ -90,7 +90,11 @@ class Async_Script implements AsyncInterface {
         }
     }
 
+    public function result() {
+        return $this->output;
+    }
+
     public function __destruct() {
-        $this->close();
+        $this->stop();
     }
 }

@@ -3,6 +3,7 @@
 namespace Jjbchunta\Async;
 
 use Exception;
+use Jjbchunta\Async\Handlers\AsyncInterface;
 
 /**
  * Pass a process that you wish to be handled asynchronously.
@@ -11,7 +12,7 @@ use Exception;
  * - **PHP Files** - Execute a PHP script. ex: `.../path/to/file.php`
  * - **URLs** - Preforming a request to a public web address. ex: `https://www.google.com`
  */
-class Async {
+class Async implements AsyncInterface {
     protected $process_type;
     protected $process_handler;
 
@@ -30,7 +31,7 @@ class Async {
      */
     public function __construct( $process ) {
         // Determine the type of process we're working with
-        $this->process_type = self::determine_process_type( $process );
+        $this->process_type = self::is_process_of_type( $process );
 
         // Initiate the respective process
         $process_handler_class = self::retrieve_process_handler_class( $this->process_type );
@@ -38,14 +39,19 @@ class Async {
     }
 
     /**
-     * Determine the type of the process provided.
+     * Attempt to determine if the included process would be supported by this handler.
+     * 
+     * However, as implemented by the `Async` class, instead of checking if this process
+     * is supported by a specific handler, this will instead take a look at all provided
+     * handler classes and determine which one would be able to best process the
+     * provided process, and return that class name.
      * 
      * @param mixed $process The process we wish to check.
      * @throws \Exception If the provided process could not be determined, an exception
      * will be thrown.
      * @return string A string slug identifying the type of process.
      */
-    public static function determine_process_type( $process ) {
+    public static function is_process_of_type( $process ) {
         $chosen_process_type = null;
 
         // Loop through our handlers, attempting to determine if our process
@@ -77,7 +83,25 @@ class Async {
         return self::$process_handlers[ $type ];
     }
 
+    /* Interface Asks */
+
+    public function is_running() {
+        return $this->process_handler->is_running();
+    }
+
     public function wait() {
         return $this->process_handler->wait();
+    }
+
+    public function stop() {
+        $this->process_handler->stop();
+    }
+
+    public function get_exit_code() {
+        return $this->process_handler->get_exit_code();
+    }
+
+    public function result() {
+        return $this->process_handler->result();
     }
 }
