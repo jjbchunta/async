@@ -27,6 +27,9 @@ class Async implements AsyncInterface {
     /**
      * The association between process types and handler classes, that being the key
      * to value pair relationship.
+     * 
+     * When passing processes into the `Async` class, said process will step through
+     * the respective `is_process_of_type` implementations of each class in order.
      * @var array
      */
     private static $process_handlers = [
@@ -94,6 +97,13 @@ class Async implements AsyncInterface {
             throw new Exception( "The provided process handler type is not supported." );
         }
         return self::$process_handlers[ $type ];
+    }
+
+    /**
+     * @return string Retrieve the evaluated process type by said provided process.
+     */
+    public function type() {
+        return $this->process_type;
     }
 
     /* Interface Asks */

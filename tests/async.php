@@ -16,6 +16,7 @@ use Jjbchunta\Async\Async;
 echo "Invoking async process..." . PHP_EOL;
 $promise = new Async( $process );
 echo "Async process invoked!" . PHP_EOL;
+echo "Async process determined to be of type \"" . $promise->type() . "\"" . PHP_EOL;
 
 echo "Example operations..." . PHP_EOL;
 sleep(2);
@@ -23,5 +24,4 @@ echo "Example process completed." . PHP_EOL;
 
 echo "Waiting process finish..." . PHP_EOL;
 $result = await( $promise );
-print_r( $result );
 echo "Process await finished!" . PHP_EOL;

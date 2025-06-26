@@ -10,7 +10,10 @@ use Jjbchunta\Async\Handlers\Async_Script;
  */
 class Async_Curl extends Async_Script {
     public static function is_process_of_type( $process ) {
-        return true;
+        if ( !is_string( $process ) ) return false;
+
+        // Evaluate if there is a prefix of an http or https
+        return preg_match( '/^https?:\/\//', $process ) == 1;
     }
 
     public function __construct( $process ) {

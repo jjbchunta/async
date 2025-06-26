@@ -41,7 +41,10 @@ class Async_Script implements AsyncInterface {
     */
 
     public static function is_process_of_type( $process ) {
-        return true;
+        if ( !is_string( $process ) ) return false;
+
+        // Evaluate if there is a pointer to a ".php" file
+        return preg_match( '/\.php/', $process ) == 1;
     }
 
     public function __construct( $process ) {
