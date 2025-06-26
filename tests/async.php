@@ -22,5 +22,5 @@ sleep(2);
 echo "Example process completed." . PHP_EOL;
 
 echo "Waiting process finish..." . PHP_EOL;
-$promise->stop();
+await( $promise );
 echo "Process await finished!" . PHP_EOL;
