@@ -17,6 +17,10 @@ echo "Invoking async process..." . PHP_EOL;
 $promise = new Async( $process );
 echo "Async process invoked!" . PHP_EOL;
 
+echo "Example operations..." . PHP_EOL;
+sleep(2);
+echo "Example process completed." . PHP_EOL;
+
 echo "Waiting process finish..." . PHP_EOL;
 await( $promise );
 echo "Process await finished!" . PHP_EOL;

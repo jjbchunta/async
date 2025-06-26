@@ -8,6 +8,7 @@ use Exception;
  * Pass a process that you wish to be handled asynchronously.
  * 
  * The current process types that are currently supported are:
+ * - **PHP Files** - Execute a PHP script. ex: `.../path/to/file.php`
  * - **URLs** - Preforming a request to a public web address. ex: `https://www.google.com`
  */
 class Async {
@@ -15,6 +16,7 @@ class Async {
     protected $process_handler;
 
     private static $process_handlers = [
+        'script' => '\\Jjbchunta\\Async\\Handlers\\Async_Script',
         'url' => '\\Jjbchunta\\Async\\Handlers\\Async_Curl'
     ];
 
@@ -22,8 +24,9 @@ class Async {
      * Class constructor.
      * 
      * @param string $process The process we wish to asynchronously invoke.
-     * @throws \Exception If a provided process could not be interpreted, or it's not
-     * one of the specifically supported processes, throw an exception.
+     * @throws \Exception If a provided process could not be interpreted, it's not one
+     * of the specifically supported processes, or the process could not be initialized
+     * asynchronously according to the process handler, an exception will be thrown.
      */
     public function __construct( $process ) {
         // Determine the type of process we're working with
@@ -72,5 +75,9 @@ class Async {
             throw new Exception( "The provided process handler type is not supported." );
         }
         return self::$process_handlers[ $type ];
+    }
+
+    public function wait() {
+        return $this->process_handler->wait();
     }
 }
