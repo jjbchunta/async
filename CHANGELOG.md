@@ -2,6 +2,12 @@
 
 All notable changes to `async` will be documented in this file.
 
+## v1.1.0 - 6/27/25
+
+* Synchronous fallback when required functionality is missing
+* Fatal errors are returned in the output
+* Processes can be gracefully shutdown as opposed to only killed
+
 ## v1.0.1 - 6/26/25
 
 * Warning supressions

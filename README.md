@@ -1,6 +1,6 @@
 # Asynchronous code for PHP.
 
-![Version](https://img.shields.io/badge/Version-1.0.1-brightgreen)
+![Version](https://img.shields.io/badge/Version-1.1.0-brightgreen)
 
 A wrapper for various built-in non-blocking operations native to PHP, a language notorious for being single-threaded and very much blocking.
 
@@ -42,6 +42,16 @@ Additional function calls available for any `Async` instance.
 * `->stop();` - Forcefully terminate the process.
 * `->result();` - Retrieve the result from the last invocation.
 * `->rerun();` - Restart the exact same process again.
+
+## Sychronous fallback
+
+Different processes require different functionality, and sometimes that functionality is not at the dispoal of the current PHP environment. If that's the case where one of these operations are requested for an asynchronous execution, but the necessary functionality is missing, the main process will be blocking. However, whether sync or async, all code will still work the same regardless. The process will still run and the output will still be the same, and any supporting functions like `->result()` and `->rerun()` will still do what they do and return what they return, just synchronously.
+
+If you're having doubts regarding whether a process can run asynchronously in the current environment, or you'd just like to be sure, you can make a static call to the `Async` class as seen below:
+
+``` php
+Async::can_process_run_async( $your_process );
+```
 
 ## Under the hood
 
