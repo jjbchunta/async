@@ -34,11 +34,18 @@ interface AsyncInterface {
     /**
      * Forcefully terminate the current asynchronous operation if it's still running.
      * 
-     * @param int $timeout Time in seconds to wait for graceful shutdown.
-     * @param bool $force Forcefully kill with SIGKILL if timeout is reached.
+     * @param bool $force When true, forcefully kill the process with SIGKILL. When
+     * false, provide the process a timeout to quit. If functions required to enable
+     * graceful shutdowns are not present within the current PHP environment, this
+     * flag will be ignored and set to forced.
+     * @param int $timeout The timeout in seconds to provide a process time to quit.
+     * Only relevant if `$force` is set to false. If the process does not close at
+     * the end of the timeout window, it will be forcefully shutdown using SIGKILL.
+     * If the provided timeout window is less than 0.1 (100ms), the call will be
+     * ignored. By default, this value is set to 5.
      * @return bool True on success, false on failure.
      */
-    public function stop();
+    public function stop( $force = true, $timeout = 5 );
 
     /**
      * @return mixed Retrieve the value returned by the process on completion.

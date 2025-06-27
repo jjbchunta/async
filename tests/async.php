@@ -19,7 +19,7 @@ echo "Async process invoked!" . PHP_EOL;
 echo "Async process determined to be of type \"" . $promise->type() . "\"" . PHP_EOL;
 
 echo "Example operations..." . PHP_EOL;
-sleep(2);
+// sleep(2);
 echo "Example process completed." . PHP_EOL;
 
 echo "Waiting process finish..." . PHP_EOL;

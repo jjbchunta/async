@@ -116,8 +116,8 @@ class Async implements AsyncInterface {
         return $this->process_handler->wait();
     }
 
-    public function stop() {
-        return $this->process_handler->stop();
+    public function stop( $force = true, $timeout = 5 ) {
+        return $this->process_handler->stop( $force, $timeout );
     }
 
     public function result() {

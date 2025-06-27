@@ -106,6 +106,7 @@ class Async_Script implements AsyncInterface {
 
         if ( !empty( $error_output ) ) {
             // There was some error that occured during execution
+            throw new Exception( "Error occured attempting to run asynchronous process: " . $error_output );
         }
 
         $this->clean_up();
@@ -115,6 +116,7 @@ class Async_Script implements AsyncInterface {
             $output = $this->sanitize_output( $output );
             if ( is_subclass_of( $output, Exception::class ) ) {
                 // There was some error that occured during sanitization
+                throw new Exception( "The output from the asynchrnous process could not be interpreted." );
             }
         }
 
@@ -122,19 +124,48 @@ class Async_Script implements AsyncInterface {
         return $output;
     }
 
-    public function get_exit_code() {
-        return $this->exit_code;
-    }
-
-    public function stop() {
+    public function stop( $force = true, $timeout = 5 ) {
         if ( !$this->is_running() ) {
             return true; // Already stopped
         }
 
-        proc_terminate( $this->process, 9 ); // 15 for more graceful nudge
+        $successfully_terminated = false;
+
+        if (
+            $force === false && $timeout >= 0.1 && // We're asking for a graceful shutdown with a valid timeout window
+            function_exists( 'pcntl_async_signals' ) && // A function required to allow for a graceful shutdown
+            function_exists( 'pcntl_signal' ) // A function required to allow for a graceful shutdown
+        ) {
+            // Attempt to gracefully shut down the process in accordance with the timeout
+            proc_terminate( $this->process, 15 );
+
+            $start_time = microtime( true );
+            while (true) {
+                // If the process is no longer running, it shut down successfully
+                if ( !$this->is_running() ) {
+                    break;
+                }
+
+                // Check if the timeout has been exceeded
+                $elapsed_time = microtime( true ) - $start_time;
+                if ( $elapsed_time > $timeout ) {
+                    // We've taken too long, kill it
+                    proc_terminate( $this->process, 9 );
+                    $successfully_terminated = true;
+                    break;
+                }
+
+                // LOOP
+                usleep( 100000 ); // ~100ms
+            }
+        } else {
+            // Otherwise, just put it out of it's misery
+            proc_terminate( $this->process, 9 );
+            $successfully_terminated = true;
+        }
 
         $this->clean_up();
-        return true;
+        return $successfully_terminated;
     }
 
     public function result() {
@@ -168,5 +199,13 @@ class Async_Script implements AsyncInterface {
             $this->exit_code = proc_close( $this->process );
             $this->process = null;
         }
+    }
+
+    /**
+     * @return int|null Retrieve the exit code as seen by a process termination
+     * invocation.
+     */
+    public function get_exit_code() {
+        return $this->exit_code;
     }
 }
