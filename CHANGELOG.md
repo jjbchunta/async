@@ -2,6 +2,11 @@
 
 All notable changes to `async` will be documented in this file.
 
+## v1.1.1 - 6/27/25
+
+* Omitted some accidental front-facing debugging
+* Supressed PHP warnings and errors
+
 ## v1.1.0 - 6/27/25
 
 * Synchronous fallback when required functionality is missing

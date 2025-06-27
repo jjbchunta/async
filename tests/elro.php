@@ -8,12 +8,14 @@ if ( function_exists( 'pcntl_async_signals' ) &&
         function_exists( 'pcntl_signal' ) )
 {
     pcntl_async_signals( true );
-    function signalHandler($signo) {
+    function signal_handler($signo) {
         global $should_exit;
         echo "Caught signal, preparing to shut down..." . PHP_EOL;
         $should_exit = true;
     }
-    pcntl_signal( 15, 'signalHandler' ); // Register for SIGTERM
+    pcntl_signal( SIGINT, 'signal_handler' );
+    pcntl_signal( SIGTERM, 'signal_handler' );
+    pcntl_signal( SIGHUP, 'signal_handler' );
 }
 
 // The "process"

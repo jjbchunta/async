@@ -81,7 +81,7 @@ class Async_Script implements AsyncInterface {
 
         // Now, determine if we can preform this operation asynchronously
         if ( $this->async_supported_env ) {
-            echo "-- Async" . PHP_EOL;
+            // echo "-- Async" . PHP_EOL;
 
             // We can proceed asynchronously!!!
             $descriptor_spec = [
@@ -109,7 +109,7 @@ class Async_Script implements AsyncInterface {
             stream_set_blocking( $this->pipes[1], false );
             stream_set_blocking( $this->pipes[2], false );
         } else {
-            echo "-- Sync" . PHP_EOL;
+            // echo "-- Sync" . PHP_EOL;
             // We cannot proceed asynchronously...
 
             // As such, we'll preform all of our operations right here
@@ -256,7 +256,7 @@ class Async_Script implements AsyncInterface {
      * @throws \Exception If there was an error during sanitization, throw an exception.
      * @return mixed The sanitized output, if said function exists.
      */
-    final private function invoke_output_sanitization_if_provided( $output ) {
+    private function invoke_output_sanitization_if_provided( $output ) {
         if ( method_exists( $this, 'sanitize_output' ) ) {
             $output = $this->sanitize_output( $output );
             if ( is_subclass_of( $output, Exception::class ) ) {
