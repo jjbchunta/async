@@ -38,9 +38,26 @@ class Async implements AsyncInterface {
     ];
 
     /**
+     * A static callback that will determine if a process can be run asynchronously
+     * in the current PHP environment.
+     * 
+     * @param mixed $process The process we wish to asynchronously invoke.
+     * @return bool True if yes, false if no.
+     */
+    public static function can_process_run_async( $process ) {
+        try {
+            $process_type = self::is_process_of_type( $process );
+            $process_handler_class = self::retrieve_process_handler_class( $process_type );
+            return $process_handler_class::does_environment_support_async_functions() === true;
+        } catch ( Exception $e ) {
+            return false;
+        }
+    }
+
+    /**
      * Class constructor.
      * 
-     * @param string $process The process we wish to asynchronously invoke.
+     * @param mixed $process The process we wish to asynchronously invoke.
      * @throws \Exception If a provided process could not be interpreted, it's not one
      * of the specifically supported processes, or the process could not be initialized
      * asynchronously according to the process handler, an exception will be thrown.
@@ -73,7 +90,7 @@ class Async implements AsyncInterface {
         // Loop through our handlers, attempting to determine if our process
         // matches the conditions set by said handlers
         foreach( self::$process_handlers as $type => $handler_class ) {
-            if ( !method_exists( $handler_class, 'is_process_of_type' ) ) continue;
+            // if ( !method_exists( $handler_class, 'is_process_of_type' ) ) continue;
             if ( $handler_class::is_process_of_type( $process ) !== true ) continue;
             $chosen_process_type = $type;
             break;
@@ -97,10 +114,6 @@ class Async implements AsyncInterface {
             throw new Exception( "The provided process handler type is not supported." );
         }
         return self::$process_handlers[ $type ];
-    }
-
-    public static function does_environment_support_async_functions() {
-        return true;
     }
 
     /**
@@ -130,5 +143,12 @@ class Async implements AsyncInterface {
 
     public function rerun() {
         $this->process_handler->rerun();
+    }
+
+    public static function does_environment_support_async_functions() {
+        foreach( self::$process_handlers as $type => $handler_class ) {
+            if ( $handler_class::does_environment_support_async_functions() !== true ) return false;
+        }
+        return true;
     }
 }
