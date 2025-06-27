@@ -99,6 +99,10 @@ class Async implements AsyncInterface {
         return self::$process_handlers[ $type ];
     }
 
+    public static function does_environment_support_async_functions() {
+        return true;
+    }
+
     /**
      * @return string Retrieve the evaluated process type by said provided process.
      */

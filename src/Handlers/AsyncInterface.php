@@ -14,6 +14,14 @@ interface AsyncInterface {
      */
     public static function is_process_of_type( $process );
 
+    /**
+     * Attempt to determine if the current PHP environment has all required functions
+     * needed to preform the asynchronous operations of this handler.
+     * 
+     * @return bool True if yes, false if no.
+     */
+    public static function does_environment_support_async_functions();
+
     public function __construct( $process );
 
     /**

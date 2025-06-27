@@ -11,6 +11,12 @@ use Jjbchunta\Async\Handlers\AsyncInterface;
  */
 class Async_Script implements AsyncInterface {
     /**
+     * An indication of whether the current environment has the required functionality
+     * at PHP's exposure to preform necessary operations.
+     * @var bool
+     */
+    protected $async_supported_env;
+    /**
      * The STD in, out, and error pipes tied to the child process.
      * @var array
      */
@@ -22,9 +28,14 @@ class Async_Script implements AsyncInterface {
     protected $process;
     /**
      * The full output stream of a successful asynchronous invocation.
-     * @var string
+     * 
+     * If extended by a child process and said child process defined a `sanitize_output`
+     * function discoverable by `Async_Script`, that function will be passed this output
+     * stream with the ability to sanitize it before being commited to this variable.
+     * 
+     * @var string|mixed
      */
-    protected $output;
+    protected $output = null;
     /**
      * The original command that began the child process.
      * @var string
@@ -47,8 +58,19 @@ class Async_Script implements AsyncInterface {
         return preg_match( '/\.php/', $process ) == 1;
     }
 
+    public static function does_environment_support_async_functions() {
+        return function_exists( 'proc_open' ) &&
+                function_exists( 'proc_close' ) &&
+                function_exists( 'proc_get_status' ) &&
+                function_exists( 'stream_get_contents' ) &&
+                function_exists( 'stream_set_blocking' );
+    }
+
     public function __construct( $process ) {
         $this->command = "php $process";
+
+        // Check what we can even do
+        $this->async_supported_env = self::does_environment_support_async_functions();
 
         // `rerun` handles invocation, so just use that
         $this->rerun();
@@ -57,31 +79,36 @@ class Async_Script implements AsyncInterface {
     public function rerun() {
         if ( $this->is_running() ) return;
 
-        // We don't care about the pipes, so we define them but won't use them.
-        $descriptor_spec = [
-            0 => ["pipe", "r"], // in
-            1 => ["pipe", "w"], // out
-            2 => ["pipe", "w"] // err
-        ];
+        // Now, determine if we can preform this operation asynchronously
+        if ( $this->async_supported_env ) {
+            // We can proceed asynchronously!!!
+            $descriptor_spec = [
+                0 => ["pipe", "r"], // in
+                1 => ["pipe", "w"], // out
+                2 => ["pipe", "w"] // err
+            ];
 
-        // Ensure no conflicts
-        $this->output = null;
-        $this->exit_code = null;
-        $this->pipes = [];
+            // Ensure no conflicts
+            $this->output = null;
+            $this->exit_code = null;
+            $this->pipes = [];
 
-        // Attempt to open a seperate PHP process
-        $this->process = proc_open(
-            $this->command,
-            $descriptor_spec,
-            $this->pipes
-        );
-        if ( !is_resource( $this->process ) ) {
-            throw new Exception( "The process could not be initialized." );
+            // Attempt to open a seperate PHP process
+            $this->process = proc_open(
+                $this->command,
+                $descriptor_spec,
+                $this->pipes
+            );
+            if ( !is_resource( $this->process ) ) {
+                throw new Exception( "The process could not be initialized." );
+            }
+
+            // Ensure this happens in the background and we're not blocked by this
+            stream_set_blocking( $this->pipes[1], false );
+            stream_set_blocking( $this->pipes[2], false );
+        } else {
+            // We cannot proceed asynchrnously...
         }
-
-        // Ensure this happens in the background and we're not blocked by this
-        stream_set_blocking( $this->pipes[1], false );
-        stream_set_blocking( $this->pipes[2], false );
     }
 
     public function is_running() {
