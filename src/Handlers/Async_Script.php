@@ -202,7 +202,8 @@ class Async_Script implements AsyncInterface {
             $successfully_terminated = true;
         }
 
-        $this->clean_up();
+        // Retrieve the output if one is provided before severing the connection
+        $this->wait();
         return $successfully_terminated;
     }
 

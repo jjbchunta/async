@@ -4,6 +4,10 @@ All notable changes to `async` will be documented in this file.
 
 ## v1.1.1 - 6/27/25
 
+* A safely stopped process will stil have it's result available
+
+## v1.1.1 - 6/27/25
+
 * Omitted some accidental front-facing debugging
 * Supressed PHP warnings and errors
 

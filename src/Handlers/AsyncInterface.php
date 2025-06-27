@@ -53,7 +53,8 @@ interface AsyncInterface {
      * the end of the timeout window, it will be forcefully shutdown using SIGKILL.
      * If the provided timeout window is less than 0.1 (100ms), the call will be
      * ignored. By default, this value is set to 5.
-     * @return bool True on success, false on failure.
+     * @return bool True on success, false on failure. If the process is able to be
+     * safely stopped, the result will be available.
      */
     public function stop( $force = true, $timeout = 5 );
 
