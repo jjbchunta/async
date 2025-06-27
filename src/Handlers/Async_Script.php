@@ -12,7 +12,7 @@ use Jjbchunta\Async\Handlers\AsyncInterface;
 class Async_Script implements AsyncInterface {
     /**
      * An indication of whether the current environment has the required functionality
-     * at PHP's exposure to preform necessary operations.
+     * at PHP's exposure to preform necessary operations in an asynchronous manner.
      * @var bool
      */
     protected $async_supported_env;
@@ -81,6 +81,8 @@ class Async_Script implements AsyncInterface {
 
         // Now, determine if we can preform this operation asynchronously
         if ( $this->async_supported_env ) {
+            echo "-- Async" . PHP_EOL;
+
             // We can proceed asynchronously!!!
             $descriptor_spec = [
                 0 => ["pipe", "r"], // in
@@ -107,19 +109,33 @@ class Async_Script implements AsyncInterface {
             stream_set_blocking( $this->pipes[1], false );
             stream_set_blocking( $this->pipes[2], false );
         } else {
-            // We cannot proceed asynchrnously...
+            echo "-- Sync" . PHP_EOL;
+            // We cannot proceed asynchronously...
+
+            // As such, we'll preform all of our operations right here
+            $output = shell_exec( $this->command );
+            if ( $output === false || $output === null ) {
+                throw new Exception( "The process could not be initialized." );
+            }
+
+            // Allow any child classes to alter the value as desired
+            $output = $this->invoke_output_sanitization_if_provided( $output );
+
+            // And commit for all
+            $this->output = $output;
         }
     }
 
     public function is_running() {
-        if ( !is_resource( $this->process ) ) {
-            return false;
-        }
+        if ( !$this->async_supported_env ) return false;
+        if ( !is_resource( $this->process ) ) return false;
+
         $status = proc_get_status( $this->process );
         return $status[ 'running' ];
     }
 
     public function wait() {
+        if ( !$this->async_supported_env ) return $this->output;
         if ( !is_resource( $this->process ) ) {
             return '';
         }
@@ -139,19 +155,14 @@ class Async_Script implements AsyncInterface {
         $this->clean_up();
 
         // Allow any child classes to alter the value as desired
-        if ( method_exists( $this, 'sanitize_output' ) ) {
-            $output = $this->sanitize_output( $output );
-            if ( is_subclass_of( $output, Exception::class ) ) {
-                // There was some error that occured during sanitization
-                throw new Exception( "The output from the asynchrnous process could not be interpreted." );
-            }
-        }
+        $output = $this->invoke_output_sanitization_if_provided( $output );
 
         $this->output = $output;
         return $output;
     }
 
     public function stop( $force = true, $timeout = 5 ) {
+        if ( !$this->async_supported_env ) return true;
         if ( !$this->is_running() ) {
             return true; // Already stopped
         }
@@ -214,18 +225,19 @@ class Async_Script implements AsyncInterface {
      * @return void
      */
     protected function clean_up() {
-        if ( is_resource( $this->process ) ) {
-            $stdin_pipe = $this->pipes[0];
-            $stdout_pipe = $this->pipes[1];
-            $stderr_pipe = $this->pipes[2];
-            
-            fclose( $stdin_pipe );
-            fclose( $stdout_pipe );
-            fclose( $stderr_pipe );
+        if ( !$this->async_supported_env ) return;
+        if ( !is_resource( $this->process ) ) return;
 
-            $this->exit_code = proc_close( $this->process );
-            $this->process = null;
-        }
+        $stdin_pipe = $this->pipes[0];
+        $stdout_pipe = $this->pipes[1];
+        $stderr_pipe = $this->pipes[2];
+        
+        fclose( $stdin_pipe );
+        fclose( $stdout_pipe );
+        fclose( $stderr_pipe );
+
+        $this->exit_code = proc_close( $this->process );
+        $this->process = null;
     }
 
     /**
@@ -234,5 +246,23 @@ class Async_Script implements AsyncInterface {
      */
     public function get_exit_code() {
         return $this->exit_code;
+    }
+
+    /**
+     * If the `sanitize_output` method has been defined in any extended instance of
+     * this class, preform it's operation on the output of the command.
+     * 
+     * @param string $output The STDOUT stream from the process.
+     * @throws \Exception If there was an error during sanitization, throw an exception.
+     * @return mixed The sanitized output, if said function exists.
+     */
+    final private function invoke_output_sanitization_if_provided( $output ) {
+        if ( method_exists( $this, 'sanitize_output' ) ) {
+            $output = $this->sanitize_output( $output );
+            if ( is_subclass_of( $output, Exception::class ) ) {
+                throw new Exception( "The output from the asynchrnous process could not be interpreted." );
+            }
+        }
+        return $output;
     }
 }

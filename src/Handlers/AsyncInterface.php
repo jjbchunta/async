@@ -35,6 +35,8 @@ interface AsyncInterface {
      * Halt the current execution of the script for the asynchronous operation
      * to complete.
      * 
+     * @throws \Exception If a fatal error is thrown by the process while waiting,
+     * it will be passed through this wait call.
      * @return mixed The value returned by the process on completion.
      */
     public function wait();

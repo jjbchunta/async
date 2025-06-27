@@ -26,3 +26,4 @@ for ( $i = 0; $i < 5; $i++ ) {
 }
 
 echo "Worker completed without interuption." . PHP_EOL;
+exit;

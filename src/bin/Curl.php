@@ -22,3 +22,4 @@ $result = parse_and_execute_curl_string_synchronously( $curl_cmd );
 ob_end_clean();
 $compressed_result = serialize_curl_response_to_string( $result );
 echo $compressed_result;
+exit;
