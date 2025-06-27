@@ -2,7 +2,7 @@
 
 All notable changes to `async` will be documented in this file.
 
-## v1.1.1 - 6/27/25
+## v1.1.2 - 6/27/25
 
 * A safely stopped process will stil have it's result available
 
