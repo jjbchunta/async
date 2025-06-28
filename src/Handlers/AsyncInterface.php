@@ -22,7 +22,17 @@ interface AsyncInterface {
      */
     public static function does_environment_support_async_functions();
 
-    public function __construct( $process );
+    /**
+     * Class constructor.
+     * 
+     * @param mixed $process The process we wish to asynchronously invoke.
+     * @param \AsyncConfig Optional. Pass a configuration instance that allows for more
+     * granular control over how the process operates.
+     * @throws \Exception If a provided process could not be interpreted, it's not one
+     * of the specifically supported processes, or the process could not be initialized
+     * asynchronously according to the process handler, an exception will be thrown.
+     */
+    public function __construct( $process, $config = null );
 
     /**
      * Check if the current asynchronous operation is still running.

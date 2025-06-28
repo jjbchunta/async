@@ -54,21 +54,13 @@ class Async implements AsyncInterface {
         }
     }
 
-    /**
-     * Class constructor.
-     * 
-     * @param mixed $process The process we wish to asynchronously invoke.
-     * @throws \Exception If a provided process could not be interpreted, it's not one
-     * of the specifically supported processes, or the process could not be initialized
-     * asynchronously according to the process handler, an exception will be thrown.
-     */
-    public function __construct( $process ) {
+    public function __construct( $process, $config = null ) {
         // Determine the type of process we're working with
         $this->process_type = self::is_process_of_type( $process );
 
         // Initiate the respective process
         $process_handler_class = self::retrieve_process_handler_class( $this->process_type );
-        $this->process_handler = new $process_handler_class( $process );
+        $this->process_handler = new $process_handler_class( $process, $config );
     }
 
     /**

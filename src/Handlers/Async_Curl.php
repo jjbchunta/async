@@ -16,7 +16,7 @@ class Async_Curl extends Async_Script {
         return preg_match( '/^https?:\/\//', $process ) == 1;
     }
 
-    public function __construct( $process ) {
+    public function __construct( $process, $config = null ) {
         /*
          * With this basically being a wrapper for the `Async_Script` class,
          * just construct the latter half of the command the handler will call
@@ -26,7 +26,7 @@ class Async_Curl extends Async_Script {
          */
         $executable = __DIR__ . "/../bin/Curl.php";
         $command = "$executable $process";
-        parent::__construct( $command );
+        parent::__construct( $command, $config );
     }
 
     /**

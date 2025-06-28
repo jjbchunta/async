@@ -2,6 +2,7 @@
 
 namespace Jjbchunta\Async\Handlers;
 
+use AsyncConfig;
 use Exception;
 use Jjbchunta\Async\Handlers\AsyncInterface;
 
@@ -16,6 +17,12 @@ class Async_Script implements AsyncInterface {
      * @var bool
      */
     protected $async_supported_env;
+    /**
+     * An instance of the `AsyncConfig` class detailing settings related to asynchronous
+     * operations.
+     * @var AsyncConfig
+     */
+    protected $config;
     /**
      * The STD in, out, and error pipes tied to the child process.
      * @var array
@@ -66,11 +73,17 @@ class Async_Script implements AsyncInterface {
                 function_exists( 'stream_set_blocking' );
     }
 
-    public function __construct( $process ) {
+    public function __construct( $process, $config = null ) {
         $this->command = "php $process";
 
         // Check what we can even do
         $this->async_supported_env = self::does_environment_support_async_functions();
+
+        // Initialize our config for the current process
+        if ( empty( $config ) || !( $config instanceof AsyncConfig ) ) {
+            $config = new AsyncConfig();
+        }
+        $this->config = $config;
 
         // `rerun` handles invocation, so just use that
         $this->rerun();
@@ -84,10 +97,14 @@ class Async_Script implements AsyncInterface {
             // echo "-- Async" . PHP_EOL;
 
             // We can proceed asynchronously!!!
+            $isolated_streams = $this->config->get_isolated_std_stream_preferences();
+            $isol_in_str = $isolated_streams[ 'in' ];
+            $isol_out_str = $isolated_streams[ 'out' ];
+            $isol_err_str = $isolated_streams[ 'err' ];
             $descriptor_spec = [
-                0 => ["pipe", "r"], // in
-                1 => fopen('php://stdout', 'w'), // ["pipe", "w"], // out
-                2 => ["pipe", "w"] // err
+                ( !$isol_in_str ? fopen( 'php://stdin', 'r' ) : [ "pipe", "r" ] ), // in
+                ( !$isol_out_str ? fopen( 'php://stdout', 'w' ) : [ "pipe", "w" ] ), // out
+                ( !$isol_err_str ? fopen( 'php://stder', 'w' ) : [ "pipe", "w" ] ), // err
             ];
 
             // Ensure no conflicts
@@ -107,8 +124,12 @@ class Async_Script implements AsyncInterface {
 
             // Ensure this happens in the background and we're not blocked by this
             try {
-                stream_set_blocking( $this->pipes[1], false );
-                stream_set_blocking( $this->pipes[2], false );
+                if ( $isol_out_str ) {
+                    stream_set_blocking( $this->pipes[1], false );
+                }
+                if ( $isol_err_str ) {
+                    stream_set_blocking( $this->pipes[2], false );
+                }
             } catch( Exception $e ) {
                 // The stream blocking could not be initialized
                 // Just run synchronously as a result
