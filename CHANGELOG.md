@@ -6,7 +6,7 @@ All notable changes to `async` will be documented in this file.
 
 * Underlying async functionality of a process can be altered using the `AsyncConfig` class
 * Small code refactoring
-* Supressed PHP warnings
+* Suppressed PHP warnings
 
 ## v1.1.2 - 6/27/25
 
