@@ -2,6 +2,9 @@
 
 namespace Jjbchunta\Async\Handlers;
 
+use Exception;
+use Jjbchunta\Async\AsyncConfig;
+
 /**
  * The outline of expected public functions that an asynchronous handler should have.
  */
@@ -26,9 +29,9 @@ interface AsyncInterface {
      * Class constructor.
      * 
      * @param mixed $process The process we wish to asynchronously invoke.
-     * @param \AsyncConfig Optional. Pass a configuration instance that allows for more
+     * @param AsyncConfig Optional. Pass a configuration instance that allows for more
      * granular control over how the process operates.
-     * @throws \Exception If a provided process could not be interpreted, it's not one
+     * @throws Exception If a provided process could not be interpreted, it's not one
      * of the specifically supported processes, or the process could not be initialized
      * asynchronously according to the process handler, an exception will be thrown.
      */
@@ -45,7 +48,7 @@ interface AsyncInterface {
      * Halt the current execution of the script for the asynchronous operation
      * to complete.
      * 
-     * @throws \Exception If a fatal error is thrown by the process while waiting,
+     * @throws Exception If a fatal error is thrown by the process while waiting,
      * it will be passed through this wait call.
      * @return mixed The value returned by the process on completion.
      */
@@ -86,7 +89,7 @@ interface AsyncInterface {
      * value on completion will still be available through the same means of using
      * `wait` and `result` calls.
      * 
-     * @throws \Exception If the process is unable to be properly re-initialized, an
+     * @throws Exception If the process is unable to be properly re-initialized, an
      * exception will be thrown.
      * @return void
      */
