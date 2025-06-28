@@ -1,5 +1,7 @@
 <?php
 
+namespace Jjbchunta\Async;
+
 /**
  * A configuration class that can be passed into an `Async` instance for more
  * granular control over how the asynchronous process is handled.

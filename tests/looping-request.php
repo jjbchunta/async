@@ -8,7 +8,7 @@
  */
 
 // Ensure we have all required command line arguments
-if ( intval( $_SERVER[ 'argc' ] ) < 2 ) {
+if ( intval( $_SERVER[ 'argc' ] ) < 3 ) {
     echo "Required parameters missing." . PHP_EOL;
     exit;
 }
@@ -16,6 +16,12 @@ if ( intval( $_SERVER[ 'argc' ] ) < 2 ) {
 $url = $_SERVER[ 'argv' ][1];
 if ( empty( $url ) ) {
     echo "Invalid URL defined." . PHP_EOL;
+    exit;
+}
+// Retrieve the number of requests we wish to concurrently hit the server with
+$max_request_duration = intval( $_SERVER[ 'argv' ][2] );
+if ( $max_request_duration < 1 ) {
+    echo "Invalid burst duration defined." . PHP_EOL;
     exit;
 }
 
@@ -67,7 +73,6 @@ function is_site_under_maintenance( $result ) {
 }
 
 // Initialize a request loop with a defined timeout
-$max_request_duration = 5;
 $start_time = microtime( true );
 $report = [];
 

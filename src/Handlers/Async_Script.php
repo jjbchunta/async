@@ -2,9 +2,9 @@
 
 namespace Jjbchunta\Async\Handlers;
 
-use AsyncConfig;
 use Exception;
 use Jjbchunta\Async\Handlers\AsyncInterface;
+use Jjbchunta\Async\AsyncConfig;
 
 /**
  * The asynchronous handler responsible for initializing a child PHP process
@@ -259,9 +259,11 @@ class Async_Script implements AsyncInterface {
         $stdout_pipe = $this->pipes[1];
         $stderr_pipe = $this->pipes[2];
         
-        fclose( $stdin_pipe );
-        fclose( $stdout_pipe );
-        fclose( $stderr_pipe );
+        // Only close anonymous pipes
+        $isolated_streams = $this->config->get_isolated_std_stream_preferences();
+        if ( $isolated_streams[ 'in' ] ) fclose( $stdin_pipe );
+        if ( $isolated_streams[ 'out' ] ) fclose( $stdout_pipe );
+        if ( $isolated_streams[ 'err' ] ) fclose( $stderr_pipe );
 
         $this->exit_code = proc_close( $this->process );
         $this->process = null;
