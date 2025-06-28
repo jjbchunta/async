@@ -22,7 +22,12 @@ if ( !function_exists( 'parse_and_execute_curl_string_synchronously' ) ) {
      * @return array An array containing the response body, HTTP code, and any errors.
      */
     function parse_and_execute_curl_string_synchronously( $command ) {
-        $args = str_getcsv($command, ' ', '"');
+        $args = str_getcsv(
+            $command,
+            ' ',
+            '"',
+            "\\"
+        );
 
         $ch = curl_init();
         $headers = [];

@@ -86,7 +86,7 @@ class Async_Script implements AsyncInterface {
             // We can proceed asynchronously!!!
             $descriptor_spec = [
                 0 => ["pipe", "r"], // in
-                1 => ["pipe", "w"], // out
+                1 => fopen('php://stdout', 'w'), // ["pipe", "w"], // out
                 2 => ["pipe", "w"] // err
             ];
 
@@ -106,8 +106,13 @@ class Async_Script implements AsyncInterface {
             }
 
             // Ensure this happens in the background and we're not blocked by this
-            stream_set_blocking( $this->pipes[1], false );
-            stream_set_blocking( $this->pipes[2], false );
+            try {
+                stream_set_blocking( $this->pipes[1], false );
+                stream_set_blocking( $this->pipes[2], false );
+            } catch( Exception $e ) {
+                // The stream blocking could not be initialized
+                // Just run synchronously as a result
+            }
         } else {
             // echo "-- Sync" . PHP_EOL;
             // We cannot proceed asynchronously...
