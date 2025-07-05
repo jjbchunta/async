@@ -3,14 +3,22 @@
 namespace Jjbchunta\Async\Handlers;
 
 use Exception;
-use Jjbchunta\Async\Handlers\AsyncInterface;
+use Jjbchunta\Async\Interfaces\AsyncHandlerInterface;
 use Jjbchunta\Async\AsyncConfig;
+use Jjbchunta\Async\AsyncException;
 
 /**
  * The asynchronous handler responsible for initializing a child PHP process
  * running a specific file.
  */
-class Async_Script implements AsyncInterface {
+class Async_Script implements AsyncHandlerInterface {
+    /**
+     * An indication of whether the current process this class has been created with
+     * has issues with initializing. Not executing, but initializing. By default,
+     * this is set to false.
+     * @var bool
+     */
+    protected $uninitializable = false;
     /**
      * An indication of whether the current environment has the required functionality
      * at PHP's exposure to preform necessary operations in an asynchronous manner.
@@ -58,13 +66,6 @@ class Async_Script implements AsyncInterface {
         Interface Required
     */
 
-    public static function is_process_of_type( $process ) {
-        if ( !is_string( $process ) ) return false;
-
-        // Evaluate if there is a pointer to a ".php" file
-        return preg_match( '/\.php/', $process ) == 1;
-    }
-
     public static function does_environment_support_async_functions() {
         return function_exists( 'proc_open' ) &&
                 function_exists( 'proc_close' ) &&
@@ -90,6 +91,7 @@ class Async_Script implements AsyncInterface {
     }
 
     public function rerun() {
+        if ( $this->uninitializable === true ) $this->throw_initialization_error();
         if ( $this->is_running() ) return;
 
         // Now, determine if we can preform this operation asynchronously
@@ -118,9 +120,7 @@ class Async_Script implements AsyncInterface {
                 $descriptor_spec,
                 $this->pipes
             );
-            if ( !is_resource( $this->process ) ) {
-                throw new Exception( "The process could not be initialized." );
-            }
+            if ( !is_resource( $this->process ) ) $this->throw_initialization_error();
 
             // Ensure this happens in the background and we're not blocked by this
             try {
@@ -153,6 +153,7 @@ class Async_Script implements AsyncInterface {
     }
 
     public function is_running() {
+        if ( $this->uninitializable === true ) return false;
         if ( !$this->async_supported_env ) return false;
         if ( !is_resource( $this->process ) ) return false;
 
@@ -161,10 +162,9 @@ class Async_Script implements AsyncInterface {
     }
 
     public function wait() {
+        if ( $this->uninitializable === true ) return $this->output;
         if ( !$this->async_supported_env ) return $this->output;
-        if ( !is_resource( $this->process ) ) {
-            return '';
-        }
+        if ( !is_resource( $this->process ) ) return $this->output;
 
         // Re-enable blocking to wait for all content
         stream_set_blocking( $this->pipes[1], true );
@@ -188,6 +188,7 @@ class Async_Script implements AsyncInterface {
     }
 
     public function stop( $force = true, $timeout = 5 ) {
+        if ( $this->uninitializable === true ) return true;
         if ( !$this->async_supported_env ) return true;
         if ( !$this->is_running() ) {
             return true; // Already stopped
@@ -252,6 +253,7 @@ class Async_Script implements AsyncInterface {
      * @return void
      */
     protected function clean_up() {
+        if ( $this->uninitializable === true ) return;
         if ( !$this->async_supported_env ) return;
         if ( !is_resource( $this->process ) ) return;
 
@@ -293,5 +295,17 @@ class Async_Script implements AsyncInterface {
             }
         }
         return $output;
+    }
+
+    /**
+     * Throw an `AsyncException` exception.
+     * 
+     * @param string $message Optional. Include the message contained within the exception.
+     * By default, this is set to: "The process could not be initialized."
+     * @throws AsyncException
+     */
+    private function throw_initialization_error( $message = "The process could not be initialized." ) {
+        $this->uninitializable = true;
+        throw new AsyncException( $message );
     }
 }

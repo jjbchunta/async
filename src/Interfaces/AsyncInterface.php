@@ -1,39 +1,27 @@
 <?php
 
-namespace Jjbchunta\Async\Handlers;
+namespace Jjbchunta\Async\Interfaces;
 
 use Exception;
+use Throwable;
 use Jjbchunta\Async\AsyncConfig;
+use Jjbchunta\Async\AsyncException;
 
 /**
- * The outline of expected public functions that an asynchronous handler should have.
+ * General higher-level functions relevant to all asynchronous implementations.
  */
 interface AsyncInterface {
-    /**
-     * Attempt to determine if the included process would be supported by this handler.
-     * 
-     * @param mixed $process The process we wish to check.
-     * @return bool True if yes, false if no.
-     */
-    public static function is_process_of_type( $process );
-
-    /**
-     * Attempt to determine if the current PHP environment has all required functions
-     * needed to preform the asynchronous operations of this handler.
-     * 
-     * @return bool True if yes, false if no.
-     */
-    public static function does_environment_support_async_functions();
-
     /**
      * Class constructor.
      * 
      * @param mixed $process The process we wish to asynchronously invoke.
      * @param AsyncConfig Optional. Pass a configuration instance that allows for more
      * granular control over how the process operates.
-     * @throws Exception If a provided process could not be interpreted, it's not one
-     * of the specifically supported processes, or the process could not be initialized
-     * asynchronously according to the process handler, an exception will be thrown.
+     * @throws AsyncException If a provided process could not be interpreted, it's not one
+     * of the specifically supported processes, or the process could not be initialized and
+     * ran, an exception will be thrown.
+     * @throws Throwable If there is an exception that is thrown inside of the process being
+     * ran, it will be relayed back.
      */
     public function __construct( $process, $config = null );
 
@@ -89,8 +77,9 @@ interface AsyncInterface {
      * value on completion will still be available through the same means of using
      * `wait` and `result` calls.
      * 
-     * @throws Exception If the process is unable to be properly re-initialized, an
-     * exception will be thrown.
+     * @throws AsyncException If a provided process could not be interpreted, it's not one
+     * of the specifically supported processes, or the process could not be initialized and
+     * ran, an exception will be thrown.
      * @return void
      */
     public function rerun();

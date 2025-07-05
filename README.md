@@ -1,6 +1,6 @@
 # Asynchronous code for PHP.
 
-![Version](https://img.shields.io/badge/Version-1.2.0-brightgreen)
+![Version](https://img.shields.io/badge/Version-1.2.1-brightgreen)
 
 A wrapper for various built-in non-blocking operations native to PHP, a language notorious for being single-threaded and very much blocking.
 
@@ -24,14 +24,36 @@ $output = await( $promise );
 
 When it comes to this `Async` class, a _"process"_ that you pass as the main argument can be one of a few things:
 
-- **URLs** - Preforming a web request using CURL. ex: `"https://api.domain.com -X POST ..."`
+- **cURL Commands** - Preforming a web request using CURL. ex: `"https://api.domain.com -X POST ..."`
 - **PHP Files** - Execute a PHP script. ex: `".../path/to/file.php"`
 
 > [!NOTE]
 > The type of process passed into the `Async` class will be determined on the fly and will be handled accordingly.
-> 
-> As such, there is no need to put emphasis on the type of process you're looking to execute, be it through a
-> special class or additional parameters. All of that is taken care of internally.
+
+### Error handling
+
+If something goes wrong while attempting to initialize the process, rather than something wrong with the process itself, those exceptions are handled by the `AsyncException` class.
+
+``` php
+use Jjbchunta\Async\Async;
+use Jjbchunta\Async\AsyncException;
+
+try {
+    $promise = new Async( $your_process );
+} catch ( AsyncException $e ) {
+    // ...something went wrong initializing the process...
+}
+
+// ...other stuff...
+
+try {
+    $output = await( $promise );
+} catch ( Exception $e ) {
+    // ...this is an error directly from the process...
+}
+```
+
+Any other exception relating to the actual execution of the code being run will be thrown as it's respective type when attempting to call the `->wait();` or `->result();` functions.
 
 ## Also at your disposal...
 
@@ -45,7 +67,7 @@ Additional function calls available for any `Async` instance.
 
 ## Sychronous fallback
 
-Different processes require different functionality, and sometimes that functionality is not at the dispoal of the current PHP environment. If that's the case where one of these operations are requested for an asynchronous execution, but the necessary functionality is missing, the main process will be blocking. However, whether sync or async, all code will still work the same regardless. The process will still run and the output will still be the same, and any supporting functions like `->result()` and `->rerun()` will still do what they do and return what they return, just synchronously.
+Different processes require different functionality, and sometimes that functionality is not at the dispoal of the current PHP environment. If that's the case where one of these operations are requested for an asynchronous execution, but the necessary functionality is missing, the main process will be blocking. However, whether sync or async, all code will still work the same regardless. The process will still run and the output will still be the same, and any supporting functions like `->result();` and `->rerun();` will still do what they do and return what they return, just synchronously.
 
 If you're having doubts regarding whether a process can run asynchronously in the current environment, or you'd just like to be sure, you can make a static call to the `Async` class as seen below:
 

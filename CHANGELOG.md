@@ -2,6 +2,14 @@
 
 All notable changes to `async` will be documented in this file.
 
+## v1.2.1 - 7/5/25
+
+* Errors specific to the initialization of an async process rather than the async process itself are handled using `AsyncException`
+* Depreciating the static function `is_process_of_type` in the interface
+    * The type evaluation is internal to the `Async` class now as opposed to individually defined by respective process handlers
+* Small internal file and inheritance changes
+* Omitting `composer.lock` file
+
 ## v1.2.0 - 6/28/25
 
 * Underlying async functionality of a process can be altered using the `AsyncConfig` class

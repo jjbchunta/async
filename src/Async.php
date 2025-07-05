@@ -3,7 +3,7 @@
 namespace Jjbchunta\Async;
 
 use Exception;
-use Jjbchunta\Async\Handlers\AsyncInterface;
+use Jjbchunta\Async\Interfaces\AsyncInterface;
 
 /**
  * Pass a process that you wish to be handled asynchronously.
@@ -27,9 +27,6 @@ class Async implements AsyncInterface {
     /**
      * The association between process types and handler classes, that being the key
      * to value pair relationship.
-     * 
-     * When passing processes into the `Async` class, said process will step through
-     * the respective `is_process_of_type` implementations of each class in order.
      * @var array
      */
     private static $process_handlers = [
@@ -72,25 +69,24 @@ class Async implements AsyncInterface {
      * provided process, and return that class name.
      * 
      * @param mixed $process The process we wish to check.
-     * @throws \Exception If the provided process could not be determined, an exception
+     * @throws Exception If the provided process could not be determined, an exception
      * will be thrown.
      * @return string A string slug identifying the type of process.
      */
     public static function is_process_of_type( $process ) {
         $chosen_process_type = null;
+        $cannot_handle_process_error = "The requested process cannot be handled asynchronously.";
+        
+        // Type check
+        if ( empty( $process ) ) throw new Exception( $cannot_handle_process_error );
 
-        // Loop through our handlers, attempting to determine if our process
-        // matches the conditions set by said handlers
-        foreach( self::$process_handlers as $type => $handler_class ) {
-            // if ( !method_exists( $handler_class, 'is_process_of_type' ) ) continue;
-            if ( $handler_class::is_process_of_type( $process ) !== true ) continue;
-            $chosen_process_type = $type;
-            break;
-        }
+        // Is PHP file?
+        if ( preg_match( '/\.php/', $process ) == 1 ) return 'script';
 
-        if ( $chosen_process_type === null ) {
-            throw new Exception( "The requested process cannot be handled asynchronously." );
-        }
+        // Is URL?
+        if ( preg_match( '/^https?:\/\//', $process ) == 1 ) return 'url';
+
+        if ( $chosen_process_type === null ) throw new Exception( $cannot_handle_process_error );
         return $chosen_process_type;
     }
 
@@ -98,7 +94,7 @@ class Async implements AsyncInterface {
      * Based on a process type, retrieve the handler class associoated with it.
      * 
      * @param string $type A string slug identifying the type of process.
-     * @throws \Exception If the requested process type is not supported, or the handler
+     * @throws Exception If the requested process type is not supported, or the handler
      * class associated with the process type is invalid, an exception will be thrown.
      */
     public static function retrieve_process_handler_class( $type ) {
@@ -135,12 +131,5 @@ class Async implements AsyncInterface {
 
     public function rerun() {
         $this->process_handler->rerun();
-    }
-
-    public static function does_environment_support_async_functions() {
-        foreach( self::$process_handlers as $type => $handler_class ) {
-            if ( $handler_class::does_environment_support_async_functions() !== true ) return false;
-        }
-        return true;
     }
 }
